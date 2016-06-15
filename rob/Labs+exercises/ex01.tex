@@ -1,0 +1,128 @@
+\documentclass[11pt]{report}
+\usepackage{amsmath}
+\usepackage{listings}
+
+%Gummi|065|=)
+\title{\textbf{Statistical Methods for Bioinformatics [I0U31a] \\Assignment 01 - Chapter 5}}
+\author{Hamed Borhani}
+\date{\today}
+\begin{document}
+
+\maketitle
+
+\newpage
+\paragraph{1. }
+\begin{equation}
+Var(X+Y)=Var(X)+Var(Y)+2Cov(X,Y)
+\end{equation}
+
+\begin{equation}
+Var(\alpha X)=\alpha^{2}Var(X)
+\end{equation}
+
+\begin{equation}
+Cov(aX,bY)=abCov(X,Y)
+\end{equation}
+\\ According to these, we can infer:
+\\ \begin{align*} 
+Var(\alpha X + (1-\alpha)Y) &= Var(\alpha X) + Var((1-\alpha)Y) + 2Cov(\alpha X, (1-\alpha)Y)
+\\ &= \alpha^{2}Var(X) + (1-\alpha)^{2}Var(Y) + 2\alpha(1-\alpha)Cov(X,Y)
+\\ &= \alpha^{2}\sigma^{2}_{X} + \sigma^{2}_{Y} + \alpha^{2}\sigma^{2}_{Y} - 2\alpha\sigma^{2}_{Y} + 2\alpha\sigma_{XY} - 2\alpha^{2}\sigma_{XY}
+\end{align*}
+\\To find the minimum of $\alpha$, we should take the first derivative with respect to $\alpha$ and set it equal to zero:
+\begin{align*}
+\frac{d}{d(\alpha)}&(\alpha^{2}\sigma^{2}_{X} + \sigma^{2}_{Y} + \alpha^{2}\sigma^{2}_{Y} - 2\alpha\sigma^{2}_{Y} + 2\alpha\sigma_{XY} - 2\alpha^{2}\sigma_{XY}) = 0
+\\ &\Rightarrow 2\alpha\sigma^{2}_{X} + 2\alpha\sigma^{2}_{Y} - 2\sigma^{2}_{Y} + 2\sigma_{XY} - 4\alpha\sigma_{XY} = 0
+\\ &\Rightarrow 2\alpha(\sigma^{2}_{X} + \sigma^{2}_{Y} - 2\sigma_{XY} = 2\sigma^{2}_{Y} - \sigma_{XY}
+\\ &\Rightarrow \alpha = \frac{\sigma^{2}_{Y} - \sigma_{XY}}{\sigma^{2}_{X} + \sigma^{2}_{Y} - 2\sigma_{XY}}
+\end{align*}
+
+\paragraph{4. }
+
+\paragraph{5. }
+\paragraph{5. }
+\begin{lstlisting}[language=R, breaklines=true, basicstyle=\ttfamily]
+library(ISLR)
+set.seed(22)
+
+attach(Default)
+
+#a.
+fit.lor <- glm(default ~ income + balance, family = "binomial")
+
+#b.
+#i.
+dim(Default)[1] #1000
+training <- sample(1000, 500)
+#.ii
+fit.lor.val <- glm(default ~ income + balance, family = "binomial", subset = training)
+#iii.
+probabilities <- predict(fit.lor.val, newdata = Default[-training, ], type = "response")
+predict <- rep("No", length(probabilities))
+predict[probabilities > 0.5] <- "Yes"
+#iv.
+error <- mean(predict != Default[-training, ]$default)
+
+#c.
+training <- sample(1000, 500)
+fit.lor.val <- glm(default ~ income + balance, family = "binomial", subset = training)
+probabilities <- predict(fit.lor.val, newdata = Default[-training, ], type = "response")
+predict <- rep("No", length(probabilities))
+predict[probabilities > 0.5] <- "Yes"
+error1 <- mean(predict != Default[-training, ]$default)
+
+training <- sample(1000, 500)
+fit.lor.val <- glm(default ~ income + balance, family = "binomial", subset = training)
+probabilities <- predict(fit.lor.val, newdata = Default[-training, ], type = "response")
+predict <- rep("No", length(probabilities))
+predict[probabilities > 0.5] <- "Yes"
+error2 <- mean(predict != Default[-training, ]$default)
+
+training <- sample(1000, 500)
+fit.lor.val <- glm(default ~ income + balance, family = "binomial", subset = training)
+probabilities <- predict(fit.lor.val, newdata = Default[-training, ], type = "response")
+predict <- rep("No", length(probabilities))
+predict[probabilities > 0.5] <- "Yes"
+error3 <- mean(predict != Default[-training, ]$default)
+\end{lstlisting}
+
+The test error for 3 repetitions are similar, yet varying based on sampling.
+
+\begin{lstlisting}[language=R, breaklines=true, basicstyle=\ttfamily]
+#d.
+training <- sample(1000, 500)
+fit.lor.val <- glm(default ~ income + balance + student, family = "binomial", subset = training)
+probabilities <- predict(fit.lor.val, newdata = Default[-training, ], type = "response")
+predict <- rep("No", length(probabilities))
+predict[probabilities > 0.5] <- "Yes"
+error <- mean(predict != Default[-training, ]$default)
+\end{lstlisting}
+
+The test error is similar to previous models, therefore adding the additional variable is not helpful.
+
+\paragraph{6. }
+
+\begin{lstlisting}[language=R, breaklines=true, basicstyle=\ttfamily]
+#a.
+fit.lor <- glm(default ~ income + balance, family = "binomial")
+summary(fit.lor)
+\end{lstlisting}
+
+Estimates of std error : \\intercept: 4.348e-01, income: 4.985e-06, balance: 2.274e-04
+
+\begin{lstlisting}[language=R, breaklines=true, basicstyle=\ttfamily]
+#b.
+boot.fn <- function(data, index){
+        return (coef(glm(default~income + balance, data = data, subset = index, family = "binomila")))
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=R, breaklines=true, basicstyle=\ttfamily]
+#c.
+library(boot)
+boot(Default, boot.fn, 5000)
+\end{lstlisting}
+
+
+\paragraph{8. }
+\end{document}

@@ -1,0 +1,103 @@
+\documentclass[11pt]{report}
+\usepackage{amsmath}
+\usepackage{listings}
+
+%Gummi|065|=)
+\title{\textbf{Statistical Methods for Bioinformatics [I0U31a] \\Assignment 02 - Chapter 6}}
+\author{Hamed Borhani}
+\date{\today}
+\usepackage{graphicx}
+\begin{document}
+
+\maketitle
+
+\newpage
+\paragraph{6.8.5 }
+
+\subparagraph{(a)}
+
+Ridge optimization problem:
+\begin{align*} 
+&\underset{\beta}{\text{minimize }}\{\sum_{i=1}^n (y_{i} - \beta_{0} - \sum_{j=1}^p\beta_{j}x_{ij})^2 \}+\lambda\sum_{j=1}^p \beta_{j}^2\}
+\\&\underset{\beta}{\text{minimize }}\{(y_{1} - \beta_{1}x_{11} - \beta_{2}x_{12})^2 + (y_{2} - \beta_{1}x_{21} - \beta_{2}x_{22})^2 + \lambda\beta_{1}^2 + \lambda\beta_{2}^2 \}
+\end{align*}
+
+\subparagraph{(b)} 
+
+\begin{math}
+\\(y_{1} - \beta_{1}x_{11} - \beta_{2}x_{12})^2 + (y_{2} - \beta_{1}x_{21} - \beta_{2}x_{22})^2 + \lambda\beta_{1}^2 + \lambda\beta_{2}^2 = 
+\\(y_{1} - x_{11}(\beta_{1} + \beta_{2}))^2 + (y_{2} - x_{21}( \beta_{1} + \beta_{2}))^2 + \lambda\beta_{1}^2 + \lambda\beta_{2}^2 = 
+\\y_{1}^2 + x_{11}^2(\beta_{1} + \beta_{2})^2 - 2y_{1}x_{11}(\beta_{1} + \beta_{2}) + y_{2}^2 + x_{21}^2(\beta_{1} + \beta_{2})^2 - 2y_{2}x_{21}( \beta_{1} + \beta_{2})) + \lambda\beta_{1}^2 + \lambda\beta_{2}^2 = 
+\end{math}
+\begin{equation}
+\begin{split}
+\\& y_{1}^2 + x_{11}^2\beta_{1}^2 + x_{11}^2\beta_{2}^2 + 2x_{11}^2\beta_{1}\beta_{2} - 2y_{1}x_{11}(\beta_{1} + \beta_{2}) 
+\\+ &y_{2}^2 + x_{21}^2\beta_{1}^2 + x_{21}^2\beta_{2}^2 + 2x_{21}^2\beta_{1}\beta_{2} - 2y_{2}x_{21}( \beta_{1} + \beta_{2})) + \lambda\beta_{1}^2 + \lambda\beta_{2}^2
+\end{split}
+\end{equation}
+\\\\To find the minimum, we should take the first derivative with respect to $\beta_{1}$ and $\beta_{2}$ and set it equal to zero:
+
+\begin{align*}
+\frac{d}{d\beta_1} (1) &= 2x_{11}^2\beta_{1} + 2x_{11}^2\beta_{2} - 2y_{1}x_{11} + 2x_{21}^2\beta{1} + 2x_{21}^2\beta_{2} - 2y_{2}x_{21} + 2\lambda\beta_{1}= 0
+\\&\Rightarrow \beta_{1} = \frac{x_{11}^2\beta_{2} + x_{21}^2\beta_{2} - y_{1}x_{11} - y_{2}x_{21}}{x_{11}^2 + x_{21}^2 + \lambda}
+\end{align*}
+
+\begin{align*}
+\frac{d}{d\beta_2} (1) &= 2x_{11}^2\beta_{2} + 2x_{11}^2\beta_{1} - 2y_{1}x_{11} + 2x_{21}^2\beta{2} + 2x_{21}^2\beta_{1} - 2y_{2}x_{21} + 2\lambda\beta_{2}= 0
+\\&\Rightarrow \beta_{2} = \frac{x_{11}^2\beta_{1} + x_{21}^2\beta_{1} - y_{1}x_{11} - y_{2}x_{21}}{x_{11}^2 + x_{21}^2 + \lambda}
+\end{align*}
+\\\\Since both $\beta_{1}$ and $\beta_{2}$ look similar, we can say that in this setting, the ridge coefficients are equal.
+
+\subparagraph{(c)}
+
+Lasso optimization problem:
+\begin{align*} 
+&\underset{\beta}{\text{minimize }}\{\sum_{i=1}^n (y_{i} - \beta_{0} - \sum_{j=1}^p\beta_{j}x_{ij})^2 \}+\lambda\sum_{j=1}^p |\beta_{j}|\}
+\\&\underset{\beta}{\text{minimize }}\{(y_{1} - \beta_{1}x_{11} - \beta_{2}x_{12})^2 + (y_{2} - \beta_{1}x_{21} - \beta_{2}x_{22})^2 + \lambda|\beta_{1}| + \lambda|\beta_{2}| \}
+\end{align*}
+
+\subparagraph{(d)}
+
+\paragraph{6.8.8 }
+\paragraph{6.8.8 }
+\begin{lstlisting}[language=R, breaklines=true, basicstyle=\ttfamily]
+#a.
+set.seed(21)
+X = rnorm(100)
+ep = rnorm(100)
+
+#b.
+Y = 1 + 3.7 * X + -0.25 * X^2 + 1.04 * X^3 + ep
+
+#c. 
+library(leaps)
+df <- data.frame(Y=Y,X=X)
+
+regfit.full <- regsubsets(Y~poly(X, degree = 10, nvmax = 10), data = df)
+reg.summary <- summary(regfit.full)
+
+which.max(reg.summary$adjr2)
+which.max(reg.summary$rsq)
+which.min(reg.summary$cp)
+which.min(reg.summary$bic)
+
+par(mfrow = c(2,2))
+plot(reg.summary$adjr2, xlab = "Number of Variables", ylab = "Adjusted R2", type = "l")
+plot(reg.summary$cp, xlab = "Number of Variables", ylab = "CP", type = "l")
+plot(reg.summary$bic, xlab = "Number of Variables", ylab = "BIC", type = "l")
+
+\end{lstlisting}
+\begin{figure}[htp]
+\centering
+\includegraphics[scale=0.40]{/home/hamed/Rplot.jpeg}
+\caption{Adjusted R2, CP and BIC plots for all models}
+\label{}
+\end{figure}
+It seems that the best model is the model with 3rd degree polynomial:
+\begin{tabular}{llll}
+(Intercept) & $X^1$ & $X^2$ & $X^3$ \\
+1.034283 & 65.716599 & -5.104574 & 15.574039 \\
+\end{tabular}                     
+
+\paragraph{6.8.10 }
+\end{document}
